@@ -32,6 +32,10 @@ enum Args {
 
         #[structopt(name = "PROPOLIS_IP:PORT", parse(try_from_str))]
         propolis_addr: SocketAddr,
+
+        /// If true, run a mock server which does not actually spawn instances
+        #[structopt(short, long)]
+        mock: bool,
     },
 }
 
@@ -56,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
     match args {
         Args::OpenApi => run_openapi()
             .map_err(|e| anyhow!("Cannot generate OpenAPI spec: {}", e)),
-        Args::Run { cfg, propolis_addr } => {
+        Args::Run { cfg, propolis_addr, mock } => {
             let config = config::parse(&cfg)?;
 
             // Dropshot configuration.
@@ -71,20 +75,38 @@ async fn main() -> anyhow::Result<()> {
             let log = config_logging.to_logger("propolis-server").map_err(
                 |error| anyhow!("failed to create logger: {}", error),
             )?;
-
-            let context = server::Context::new(config, log.new(slog::o!()));
-            info!(log, "Starting server...");
-            let server = HttpServerStarter::new(
-                &config_dropshot,
-                server::api(),
-                context,
-                &log,
-            )
-            .map_err(|error| anyhow!("Failed to start server: {}", error))?
-            .start();
-            server
-                .await
-                .map_err(|e| anyhow!("Server exited with an error: {}", e))
+            if mock {
+                let context =
+                    mock_server::MockContext::new(config, log.new(slog::o!()));
+                info!(log, "Starting mock server...");
+                let server = HttpServerStarter::new(
+                    &config_dropshot,
+                    mock_server::api(),
+                    context,
+                    &log,
+                )
+                .map_err(|error| {
+                    anyhow!("Failed to start mock server: {}", error)
+                })?
+                .start();
+                server.await.map_err(|e| {
+                    anyhow!("Mock server exited with an error: {}", e)
+                })
+            } else {
+                let context = server::Context::new(config, log.new(slog::o!()));
+                info!(log, "Starting server...");
+                let server = HttpServerStarter::new(
+                    &config_dropshot,
+                    server::api(),
+                    context,
+                    &log,
+                )
+                .map_err(|error| anyhow!("Failed to start server: {}", error))?
+                .start();
+                server
+                    .await
+                    .map_err(|e| anyhow!("Server exited with an error: {}", e))
+            }
         }
     }
 }
