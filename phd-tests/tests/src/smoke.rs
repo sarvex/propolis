@@ -30,3 +30,14 @@ fn multiple_vms_test(ctx: &TestContext) {
         vm.wait_to_boot()?;
     }
 }
+
+#[phd_testcase]
+fn guest_reboot_test(ctx: &TestContext) {
+    let mut vm = ctx.vm_factory.new_vm(
+        "guest_reboot_test",
+        ctx.vm_factory.default_vm_config().set_cpus(4),
+    )?;
+    vm.launch()?;
+    vm.wait_to_boot()?;
+    vm.reboot_guest(true)?;
+}

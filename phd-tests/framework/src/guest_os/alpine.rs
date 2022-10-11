@@ -16,4 +16,8 @@ impl GuestOs for Alpine {
     fn get_shell_prompt(&self) -> &'static str {
         "localhost:~#"
     }
+
+    fn get_reboot_cmd(&self) -> &'static str {
+        "reboot"
+    }
 }

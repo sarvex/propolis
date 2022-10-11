@@ -521,6 +521,15 @@ impl TestVm {
             VmState::New => Err(VmStateError::InstanceNotEnsured.into()),
         }
     }
+
+    /// Directs the guest to reboot itself.
+    pub fn reboot_guest(&self, wait_to_boot: bool) -> Result<()> {
+        self.send_serial_str(self.guest_os.get_reboot_cmd())?;
+        if wait_to_boot {
+            self.wait_to_boot()?;
+        }
+        Ok(())
+    }
 }
 
 impl Drop for TestVm {

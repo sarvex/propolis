@@ -26,6 +26,10 @@ pub(super) trait GuestOs {
 
     /// Retrieves the default shell prompt for this OS.
     fn get_shell_prompt(&self) -> &'static str;
+
+    /// Retrieves the guest command to issue to reboot the system from within
+    /// the guest OS.
+    fn get_reboot_cmd(&self) -> &'static str;
 }
 
 #[allow(dead_code)]

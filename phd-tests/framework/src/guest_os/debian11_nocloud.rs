@@ -16,4 +16,8 @@ impl GuestOs for Debian11NoCloud {
     fn get_shell_prompt(&self) -> &'static str {
         "root@debian:~#"
     }
+
+    fn get_reboot_cmd(&self) -> &'static str {
+        "sudo reboot"
+    }
 }
