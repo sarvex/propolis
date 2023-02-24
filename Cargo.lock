@@ -2932,12 +2932,14 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap 3.2.23",
+ "crucible-client-types",
  "ctrlc",
  "erased-serde",
  "futures",
  "libc",
  "num_enum",
  "propolis",
+ "propolis-client",
  "propolis-standalone-config",
  "serde",
  "serde_json",
@@ -2946,6 +2948,7 @@ dependencies = [
  "slog-term",
  "tokio",
  "toml 0.5.11",
+ "uuid",
 ]
 
 [[package]]
